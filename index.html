@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sketchub Pro - Kapil H4X</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root { --primary: #4b69ff; --bg: #ffffff; --glass: rgba(255, 255, 255, 0.7); }
+        * { margin:0; padding:0; box-sizing:border-box; font-family: 'Segoe UI', sans-serif; }
+        body { background: #fdfdfd; color: #222; padding-bottom: 120px; }
+
+        /* HEADER & SLEEK SEARCH */
+        header { background: #fff; padding: 15px 20px; border-bottom: 1px solid #f0f0f0; position: sticky; top:0; z-index: 1000; }
+        .top-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+        .search-container { background: #f1f3f4; border-radius: 12px; display: flex; align-items: center; padding: 6px 12px; transition: 0.3s; border: 1px solid transparent; width: 100%; max-width: 400px; margin: 0 auto; }
+        .search-container:focus-within { background: #fff; border-color: var(--primary); box-shadow: 0 0 10px rgba(75,105,255,0.1); }
+        .search-container input { border: none; background: transparent; width: 100%; margin-left: 10px; outline: none; font-size: 14px; color: #333; }
+
+        /* SECTIONS */
+        .section { margin-top: 25px; padding: 0 20px; transition: 0.4s ease; }
+        .sec-title { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+        .sec-title h2 { font-size: 18px; font-weight: 700; color: #1a1a1a; }
+        .see-more { color: var(--primary); font-size: 13px; font-weight: 600; text-decoration: none; border: 1px solid #eee; padding: 4px 12px; border-radius: 8px; }
+
+        /* GLASS TILE ANIMATION GRID */
+        .app-grid { display: flex; gap: 15px; overflow-x: auto; padding-bottom: 15px; scrollbar-width: none; }
+        .app-card { min-width: 105px; text-align: center; cursor: pointer; transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        .app-card:hover { transform: translateY(-8px); }
+        .icon-box { position: relative; width: 100px; height: 100px; border-radius: 22px; overflow: hidden; border: 1px solid #eee; box-shadow: 0 4px 12px rgba(0,0,0,0.05); background: #fff; margin: 0 auto; }
+        .icon-box img { width: 100%; height: 100%; object-fit: cover; }
+        .icon-box::after { content: ''; position: absolute; top:0; left:0; width:100%; height:100%; background: linear-gradient(135deg, rgba(255,255,255,0.2) 0%, rgba(255,255,255,0) 100%); pointer-events: none; }
+        .app-name { font-size: 13px; margin-top: 8px; font-weight: 500; color: #333; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .app-stats { font-size: 11px; color: #999; display: flex; justify-content: center; gap: 8px; margin-top: 2px; }
+
+        /* LIGHTING GLASS NAV */
+        .lighting-nav { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); width: 90%; background: var(--glass); backdrop-filter: blur(20px); border-radius: 35px; display: flex; justify-content: space-around; padding: 12px; border: 1px solid rgba(255,255,255,0.5); box-shadow: 0 10px 40px rgba(0,0,0,0.1); z-index: 2000; }
+        .nav-link { text-align: center; color: #888; font-size: 11px; cursor: pointer; text-decoration: none; position: relative; transition: 0.3s; flex: 1; }
+        .nav-link i { display: block; font-size: 20px; margin-bottom: 4px; transition: 0.3s; }
+        .nav-link.active { color: var(--primary); }
+        .nav-link.active i { transform: translateY(-3px); text-shadow: 0 0 15px rgba(75,105,255,0.6); }
+        .nav-dot { width: 4px; height: 4px; background: var(--primary); border-radius: 50%; position: absolute; bottom: -8px; left: 50%; transform: translateX(-50%); box-shadow: 0 0 10px var(--primary); display: none; }
+        .nav-link.active .nav-dot { display: block; }
+
+        /* FULL PAGE & MODALS */
+        .full-page { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #fff; z-index: 3000; overflow-y: auto; padding: 20px; }
+        .admin-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 4000; align-items: center; justify-content: center; padding: 20px; }
+        .modal-box { background: #fff; padding: 25px; border-radius: 25px; width: 100%; max-width: 400px; max-height: 85vh; overflow-y: auto; position: relative; }
+        input, textarea, select { width: 100%; padding: 12px; margin: 8px 0; background: #f9f9f9; border: 1px solid #eee; border-radius: 12px; outline: none; font-size: 14px; }
+        .btn-black { width: 100%; padding: 14px; background: #000; color: #fff; border: none; border-radius: 12px; font-weight: bold; cursor: pointer; }
+
+        /* SS SLIDER */
+        .ss-row { display: flex; gap: 12px; overflow-x: auto; margin: 15px 0; scrollbar-width: none; }
+        .ss-row img { height: 210px; border-radius: 12px; border: 1px solid #eee; }
+        
+        /* COMMENT SYSTEM */
+        .comm-area { margin-top: 25px; background: #f8f9fa; padding: 15px; border-radius: 15px; }
+    </style>
+</head>
+<body onload="refreshUI()">
+
+<header>
+    <div class="top-row">
+        <h1 style="font-size: 22px; font-weight: 800;">Sketchub</h1>
+        <div style="display:flex; gap:15px; font-size:20px; color:#555;">
+            <i class="fa-regular fa-sun"></i>
+            <i class="fa-regular fa-user-circle"></i>
+        </div>
+    </div>
+    <div class="search-container">
+        <i class="fa-solid fa-magnifying-glass" style="color:#aaa; font-size:14px;"></i>
+        <input type="text" id="mainSearch" placeholder="Search..." oninput="handleSearch()">
+    </div>
+</header>
+
+<div id="sections-wrapper">
+    <div class="section" id="new-sec">
+        <div class="sec-title"><h2>New & Updated</h2><a href="#" class="see-more">See More</a></div>
+        <div id="new-grid" class="app-grid"></div>
+    </div>
+    <div class="section" id="editor-sec">
+        <div class="sec-title"><h2>Editor's choice</h2><a href="#" class="see-more">See More</a></div>
+        <div id="editor-grid" class="app-grid"></div>
+    </div>
+    <div class="section" id="trending-sec">
+        <div class="sec-title"><h2>Trending</h2><a href="#" class="see-more">See More</a></div>
+        <div id="trending-grid" class="app-grid"></div>
+    </div>
+</div>
+
+<div class="section" id="all-sec" style="margin-bottom: 40px;">
+    <div class="sec-title"><h2 id="all-title">All Projects</h2></div>
+    <div id="all-grid" class="app-grid" style="flex-wrap: wrap; justify-content: center;"></div>
+</div>
+
+<div id="detail-view" class="full-page">
+    <div onclick="closeDetail()" style="margin-bottom:20px;"><i class="fa-solid fa-arrow-left" style="font-size: 24px;"></i></div>
+    <div id="detail-render"></div>
+</div>
+
+<div id="admin-gate" class="admin-modal">
+    <div class="modal-box">
+        <h3>Admin Access</h3>
+        <input type="password" id="gatePass" placeholder="Enter Password">
+        <button class="btn-black" onclick="verifyGate()">Verify</button>
+        <button onclick="closeModals()" style="width:100%; margin-top:10px; border:none; background:none; color:#888;">Cancel</button>
+    </div>
+</div>
+
+<div id="admin-panel" class="admin-modal">
+    <div class="modal-box">
+        <h3 style="color:var(--primary)">Upload Project</h3>
+        <button onclick="toggleDelMode()" style="background:#ff4757; color:#fff; border:none; padding:8px; width:100%; border-radius:10px; margin:10px 0;">Delete Mode ON/OFF</button>
+        <select id="pCat"><option>New & Updated</option><option>Editor's choice</option><option>Trending</option></select>
+        <input id="pIcon" placeholder="Icon URL">
+        <input id="pName" placeholder="Name">
+        <input id="pPrice" placeholder="Price (₹)">
+        <input id="pLink" placeholder="Download Link">
+        <textarea id="pAbout" placeholder="About this project (Description)"></textarea>
+        <p style="font-size:12px; color:#666;">Screenshots (Max 5)</p>
+        <input id="ss1" placeholder="SS 1"><input id="ss2" placeholder="SS 2"><input id="ss3" placeholder="SS 3"><input id="ss4" placeholder="SS 4"><input id="ss5" placeholder="SS 5">
+        <button class="btn-black" onclick="saveToDB()">Publish</button>
+        <button onclick="closeModals()" style="width:100%; margin-top:10px; border:none; background:none; color:#888;">Cancel</button>
+    </div>
+</div>
+
+<nav class="lighting-nav">
+    <div class="nav-link active" onclick="location.reload()"><i class="fa-solid fa-house"></i>Home<div class="nav-dot"></div></div>
+    <div class="nav-link" onclick="document.getElementById('admin-gate').style.display='flex'"><i class="fa-solid fa-cloud-arrow-up"></i>Upload<div class="nav-dot"></div></div>
+    <div class="nav-link" onclick="window.open('https://t.me/+y4__XGNTO4w0ZmE1')"><i class="fa-brands fa-telegram"></i>Telegram<div class="nav-dot"></div></div>
+</nav>
+
+<script>
+    let db = JSON.parse(localStorage.getItem('sk_db')) || [];
+    let delMode = false;
+    let currentOpen = null;
+
+    window.onpopstate = () => { closeDetail(); closeModals(); };
+
+    function handleSearch() {
+        let val = document.getElementById('mainSearch').value.toLowerCase();
+        let wrapper = document.getElementById('sections-wrapper');
+        let allTitle = document.getElementById('all-title');
+
+        if(val.length > 0) {
+            wrapper.style.display = 'none'; // Hide Trending, New, etc.
+            allTitle.innerText = "Search Results";
+        } else {
+            wrapper.style.display = 'block'; // Show them back
+            allTitle.innerText = "All Projects";
+        }
+
+        document.querySelectorAll('.app-card').forEach(card => {
+            let name = card.getAttribute('data-name').toLowerCase();
+            card.style.display = name.includes(val) ? "block" : "none";
+        });
+    }
+
+    function verifyGate() {
+        if(document.getElementById('gatePass').value === "BOSS") {
+            closeModals();
+            document.getElementById('admin-panel').style.display = 'flex';
+        } else { alert("Wrong Password!"); }
+    }
+
+    function saveToDB() {
+        const screens = [document.getElementById('ss1').value, document.getElementById('ss2').value, document.getElementById('ss3').value, document.getElementById('ss4').value, document.getElementById('ss5').value].filter(s => s !== "");
+        const item = { id: Date.now(), cat: document.getElementById('pCat').value, icon: document.getElementById('pIcon').value, name: document.getElementById('pName').value, price: document.getElementById('pPrice').value, link: document.getElementById('pLink').value, about: document.getElementById('pAbout').value, ss: screens, comments: [] };
+        db.push(item);
+        localStorage.setItem('sk_db', JSON.stringify(db));
+        refreshUI(); closeModals();
+    }
+
+    function refreshUI() {
+        const containers = { "New & Updated": "new-grid", "Editor's choice": "editor-grid", "Trending": "trending-grid" };
+        Object.values(containers).forEach(id => document.getElementById(id).innerHTML = "");
+        document.getElementById('all-grid').innerHTML = "";
+
+        db.forEach(p => {
+            const card = `
+                <div class="app-card" onclick="openDetail(${p.id})" data-name="${p.name}">
+                    <div class="icon-box">
+                        <button onclick="event.stopPropagation(); remove(${p.id})" style="display:${delMode?'block':'none'}; position:absolute; z-index:10; background:red; border:none; color:#fff; width:20px; height:20px; border-radius:50%; right:5px; top:5px;">X</button>
+                        <img src="${p.icon}">
+                    </div>
+                    <div class="app-name">${p.name}</div>
+                    <div class="app-stats"><i class="fa-regular fa-heart"></i> 12 <i class="fa-regular fa-comment"></i> ${p.comments.length}</div>
+                </div>`;
+            if(containers[p.cat]) document.getElementById(containers[p.cat]).innerHTML += card;
+            document.getElementById('all-grid').innerHTML += card;
+        });
+    }
+
+    function openDetail(id) {
+        currentOpen = id;
+        const p = db.find(x => x.id === id);
+        const ss = p.ss.map(img => `<img src="${img}">`).join('');
+        const comms = p.comments.map(c => `<div style="padding:10px; border-bottom:1px solid #eee; font-size:13px;"><b>${c.u}</b>: ${c.t}</div>`).join('');
+
+        document.getElementById('detail-render').innerHTML = `
+            <div style="display:flex; gap:15px; align-items:center;">
+                <img src="${p.icon}" style="width:85px; height:85px; border-radius:20px; border:1px solid #eee;">
+                <div><h2 style="font-size:22px;">${p.name}</h2><p style="color:var(--primary); font-weight:bold;">₹${p.price}</p></div>
+            </div>
+            <a href="${p.link}" class="btn-black" style="display:block; text-align:center; text-decoration:none; margin:20px 0;">Download Project</a>
+            <div style="display:flex; justify-content:space-around; padding:15px 0; border-top:1px solid #eee; border-bottom:1px solid #eee;">
+                <div style="text-align:center;"><i class="fa-regular fa-heart"></i><p style="font-size:10px;">Likes</p></div>
+                <div style="text-align:center;"><i class="fa-regular fa-comment"></i><p style="font-size:10px;">Comments</p></div>
+                <div style="text-align:center;"><i class="fa-solid fa-download"></i><p style="font-size:10px;">1k+</p></div>
+            </div>
+            <div class="ss-row">${ss}</div>
+            <div style="margin-top:20px;">
+                <h3 style="font-size:16px; margin-bottom:10px;">About this project</h3>
+                <p style="color:#666; font-size:14px; line-height:1.6;">${p.about || 'No description available.'}</p>
+            </div>
+            <div class="comm-area">
+                <h3 style="font-size:15px; margin-bottom:10px;">Comments (${p.comments.length})</h3>
+                <input id="cU" placeholder="Your Name" style="width:40%; margin-right:5%">
+                <input id="cT" placeholder="Write a comment..." style="width:50%">
+                <button onclick="postComm()" style="background:var(--primary); color:#fff; border:none; padding:8px 15px; border-radius:10px; margin-top:10px;">Post</button>
+                <div id="comm-list" style="margin-top:15px;">${comms}</div>
+            </div>`;
+        document.getElementById('detail-view').style.display = 'block';
+        history.pushState({p:2}, '');
+    }
+
+    function postComm() {
+        const u = document.getElementById('cU').value; const t = document.getElementById('cT').value;
+        if(!u || !t) return;
+        let p = db.find(x => x.id === currentOpen);
+        p.comments.push({u, t});
+        localStorage.setItem('sk_db', JSON.stringify(db));
+        openDetail(currentOpen);
+    }
+
+    function remove(id) {
+        db = db.filter(x => x.id !== id);
+        localStorage.setItem('sk_db', JSON.stringify(db));
+        refreshUI();
+    }
+
+    function toggleDelMode() { delMode = !delMode; refreshUI(); }
+    function closeDetail() { document.getElementById('detail-view').style.display = 'none'; }
+    function closeModals() { document.querySelectorAll('.admin-modal').forEach(m => m.style.display = 'none'); }
+</script>
+</body>
+</html>
